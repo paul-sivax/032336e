@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mascot alignment QA</title>
+  </head>
+  <body>
+    <div id="qa"></div>
+    <script type="module">
+      import { createApp, ref } from "vue/dist/vue.esm-bundler.js";
+      import MascotFrame from "../src/MascotFrame.vue";
+      import CharacterWorkflow from "../src/CharacterWorkflow.vue";
+      import {
+        deskAnchors,
+        mascotActions,
+        preloadMascot,
+      } from "../src/mascotFrames";
+      import "../src/style.css";
+      createApp({
+        components: { MascotFrame, CharacterWorkflow },
+        setup() {
+          return {
+            actions: mascotActions,
+            anchors: deskAnchors,
+            original: ref(false),
+            loaded: preloadMascot(),
+          };
+        },
+        template: `
+    <main class="qa-page">
+      <h1>Twenty-one frames · one desk anchor</h1>
+      <label><input type="checkbox" v-model="original"> Original crops</label>
+      <div class="qa-sheet">
+        <section v-for="action in actions" :key="action">
+          <h2>{{action}}</h2>
+          <div class="qa-row">
+            <div v-for="frame in anchors[action].length" :key="frame" class="qa-cell">
+              <img v-if="original" :src="'/mascot/'+action+'-'+frame+'.webp'" width="160" height="160">
+              <MascotFrame v-else :action="action" :frame="frame-1" :label="action+' '+frame" />
+              <span class="axis horizontal"></span><span class="axis vertical"></span>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="qa-live"><CharacterWorkflow mode="search" status="running" :ready="false" /></div>
+    </main>`,
+      }).mount("#qa");
+    </script>
+    <style>
+      html,
+      body {
+        height: auto;
+        overflow: auto;
+      }
+      body {
+        display: block;
+        background: #f4f5ed;
+        margin: 0;
+      }
+      .qa-page {
+        width: 720px;
+        margin: 20px auto;
+      }
+      .qa-page h1 {
+        font-size: 20px;
+      }
+      .qa-page label {
+        display: block;
+        margin: 12px 0;
+        font-size: 12px;
+      }
+      .qa-page input {
+        width: auto;
+      }
+      .qa-sheet h2 {
+        font-size: 12px;
+        line-height: 1;
+        margin: 12px 0 5px;
+        text-transform: uppercase;
+      }
+      .qa-row {
+        display: flex;
+        gap: 12px;
+      }
+      .qa-cell {
+        width: 160px;
+        height: 160px;
+        position: relative;
+        background: white;
+        border: 1px solid #d8e2d7;
+      }
+      .qa-cell .mascot-frame,
+      .qa-cell img {
+        width: 160px;
+        height: 160px;
+        max-width: none;
+      }
+      .axis {
+        position: absolute;
+        pointer-events: none;
+        background: #c35c7940;
+      }
+      .axis.vertical {
+        width: 1px;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+      }
+      .axis.horizontal {
+        height: 1px;
+        left: 0;
+        right: 0;
+        top: 95%;
+      }
+      .qa-live {
+        width: 360px;
+        height: 600px;
+        display: flex;
+        margin-top: 20px;
+      }
+    </style>
+  </body>
+</html>

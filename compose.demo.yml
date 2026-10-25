@@ -1,0 +1,21 @@
+services:
+  orchestrator:
+    build: {context: ., dockerfile: demo/Dockerfile.api}
+    env_file: .env.demo
+    environment: {DATA_DIR: /data, ORDERS_URL: 'http://orders:8012', PUBLIC_WEB_URL: 'http://localhost:5173'}
+    ports: ['127.0.0.1:8010:8010']
+    volumes: ['orchestrator-data:/data']
+    depends_on: [orders]
+  orders:
+    build: {context: ., dockerfile: demo/Dockerfile.api}
+    env_file: .env.demo
+    environment: {DATA_DIR: /data}
+    command: ['uvicorn', 'agentic.merchant:app_factory', '--factory', '--host', '0.0.0.0', '--port', '8012']
+    volumes: ['orders-data:/data']
+  web:
+    build: {context: ., dockerfile: demo/Dockerfile.web}
+    ports: ['127.0.0.1:5173:80']
+    depends_on: [orchestrator]
+volumes:
+  orchestrator-data:
+  orders-data:
